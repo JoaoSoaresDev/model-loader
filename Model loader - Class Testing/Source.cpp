@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "GL/glut.h"
+#include "Math/vector3.h"
 #include "Model.h"
 
 void myinit() {
@@ -48,9 +49,12 @@ int main(int argc, char** argv)
 		return false;
 	}
 
-	std::vector<Model> models;
+	//std::vector<Model> models;
 
-	//models.push_back();
+	Model glassModel;
+
+	glassModel.loadModel(*file);
+	
 
 
 	glutInit(&argc, argv);

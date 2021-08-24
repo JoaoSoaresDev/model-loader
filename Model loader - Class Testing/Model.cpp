@@ -1,6 +1,8 @@
 #include "Model.h"
 
 #include <iostream>
+#include <string>
+#include <sstream>
 
 std::vector<Vector3> Model::getVertices() const
 {
@@ -15,6 +17,11 @@ std::vector<Vector3> Model::getNormals() const
 std::vector<Vector3> Model::getTextures() const
 {
 	return textures;
+}
+
+std::vector<Face> Model::getFaces() const
+{
+	return faces;
 }
 
 void Model::setVertices(std::vector<Vector3> vert)
@@ -32,58 +39,117 @@ void Model::setTextures(std::vector<Vector3> text)
 	textures = text;
 }
 
-void Model::loadModel(FILE& file)
+void Model::setFaces(std::vector<Face> fac)
 {
-	while (1)
+	faces = fac;
+}
+
+void Model::setVertices(Vector3 vert)
+{
+	vertices.push_back(vert);
+}
+
+void Model::setNormals(Vector3 norm)
+{
+	normals.push_back(norm);
+}
+
+void Model::setTextures(Vector3 text)
+{
+	textures.push_back(text);
+}
+
+void Model::setFaces(Face fac)
+{
+	faces.push_back(fac);
+}
+
+
+std::istream& operator>>(std::istream& input, Model& M)
+{
+	while (input)
 	{
-		char header[128];
+		std::string header;
+		std::string dump;
 
-		int res = fscanf(&file, "%s", header);
-		if (res == EOF)
-			break;
+		input >> header;
 
-		if (strcmp(header, "v") == 0)
+		if (header == "v")
 		{
 			Vector3 vertex;
 			float x, y, z;
-			fscanf(&file, "%f %f %f\n", &x, &y, &z);
+
+			input >> x >> y >> z;
+
 			vertex.SetX(x);
 			vertex.SetY(y);
 			vertex.SetZ(z);
-			vertices.push_back(vertex);
-			std::cout << vertex.GetX() << " " << vertex.GetY() << " " << vertex.GetZ() << std::endl;
-		}	
-		else if (strcmp(header, "vn") == 0)
+
+			M.setVertices(vertex);
+		}
+		else if (header == "vn")
 		{
 			Vector3 vertexNormal;
 			float x, y, z;
-			fscanf(&file, "%f %f %f\n", &x, &y, &z);
+
+			input >> x >> y >> z;
+
 			vertexNormal.SetX(x);
 			vertexNormal.SetY(y);
-			vertexNormal.SetZ(z); 
-			normals.push_back(vertexNormal);
-			std::cout << vertexNormal.GetX() << " " << vertexNormal.GetY() << " " << vertexNormal.GetZ() << std::endl;
+			vertexNormal.SetZ(z);
+
+			M.setNormals(vertexNormal);
 		}
-		else if (strcmp(header, "vt") == 0)
+		else if (header == "vt")
 		{
 			Vector3 vertexTexture;
 			float x, y;
-			fscanf(&file, "%f %f\n", &x, &y);
+
+			input >> x >> y;
+
 			vertexTexture.SetX(x);
 			vertexTexture.SetY(y);
-			textures.push_back(vertexTexture);
-			std::cout << vertexTexture.GetX() << " " << vertexTexture.GetY() << std::endl;
+
+			M.setTextures(vertexTexture);
 		}
-		else if (strcmp(header, "f") == 0)
+		else if (header == "f")
 		{
+			indexes tempIndex;
+			std::vector<indexes> tempFace;
+			Face tempFaceObj;
+
+			std::string str;
+
+			std::getline(input >> std::ws, str);
+
+			std::stringstream token(str);
+
+			while (std::getline(token, str, ' '))
+			{
+				std::stringstream tempStr;
+				tempStr << str;
+
+				std::string singleToken;
+
+				getline(tempStr, singleToken, '/');
+				tempIndex.v = std::stoi(singleToken);
+				
+				getline(tempStr, singleToken, '/');
+				tempIndex.vn = std::stoi(singleToken);
+				
+				getline(tempStr, singleToken);
+				tempIndex.vt = std::stoi(singleToken);
+
+				tempFace.push_back(tempIndex);
+			}
+
+			tempFaceObj.setFace(tempFace);
 			
+			M.setFaces(tempFaceObj);
 		}
 		else
 		{
-
+			getline(input, dump);
 		}
-
-
 	}
-
 }

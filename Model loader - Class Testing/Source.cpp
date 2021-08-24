@@ -1,10 +1,12 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <fstream>
 
 #include "GL/glut.h"
 #include "Math/vector3.h"
 #include "Model.h"
+
 
 void myinit() {
 	glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -42,8 +44,9 @@ void reshape(int w, int h) {
 
 int main(int argc, char** argv)
 {
-	FILE* file = fopen("./Model/Glass/Glass OBJ.obj", "r");
-	if (file == NULL)
+	std::ifstream file;
+	file.open("./Model/FacesFile.txt");
+	if (!file)
 	{
 		std::cout << "Impossibel to open file!" << std::endl;
 		return false;
@@ -53,7 +56,9 @@ int main(int argc, char** argv)
 
 	Model glassModel;
 
-	glassModel.loadModel(*file);
+	//glassModel.loadModel(file);
+
+	file >> glassModel;
 	
 
 
